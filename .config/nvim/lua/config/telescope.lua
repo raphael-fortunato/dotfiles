@@ -1,0 +1,11 @@
+vim.keymap.set("n", "<leader>fp", require("telescope.builtin").find_files)
+vim.keymap.set("n", "<leader>fs", require("telescope.builtin").live_grep)
+vim.keymap.set("n", "<leader>fb", require("telescope.builtin").buffers)
+vim.keymap.set("n", "<leader>fh", require("telescope.builtin").help_tags)
+vim.keymap.set("n", "<leader>gw", require("telescope").extensions.git_worktree.git_worktrees)
+vim.keymap.set("n", "<leader>gm", require("telescope").extensions.git_worktree.create_git_worktree)
+vim.keymap.set("n", "<leader>fw", require("telescope.builtin").grep_string)
+vim.keymap.set("v", "<leader>fv", "\"zy<cmd>exec 'Telescope grep_string default_text=' . escape(@z, ' ')<cr>")
+
+vim.keymap.set("n", "<leader>sh", require("telescope.builtin").search_history)
+vim.keymap.set("n", "<leader>tr", require("telescope.builtin").resume)

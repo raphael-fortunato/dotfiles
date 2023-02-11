@@ -1,0 +1,110 @@
+Config { 
+
+   -- appearance
+     font =         "xft:JetBrainsMono Nerd Font:size=11:weight=bold:normal:antialias=true:hinting=true"
+   , additionalFonts = ["xft:Mononoki Nerd Font:size=14:normal:antialias=true:hinting=true",
+                        "xft:UbuntuMono Nerd Font:size=14:normal:antialias=true:hinting=true",
+             "xft:JetBrainsMono Nerd Font Mono:size=11:weight=bold:normal:antialias=true:hinting=true"
+                       ]
+   , bgColor =      "#1d2021"
+   , fgColor =      "#ebdbb2"
+   , position =     TopW L 100
+   , border =       BottomB
+   , borderColor =  "#646464"
+   , alpha = 100
+
+   -- layout
+   , sepChar =  "%"   -- delineator between plugin names and straight text
+   , alignSep = "}{"  -- separator between left-right alignment
+   , template = " %UnsafeStdinReader% }{ %sb_battery% |%volume% |%date%||%kbd%"
+
+
+
+   -- general behavior
+   , lowerOnStart =     True    -- send to bottom of window stack on start
+   , hideOnStart =      False   -- start with window unmapped (hidden)
+   , allDesktops =      True    -- show on all desktops
+   , overrideRedirect = True    -- set the Override Redirect flag (Xlib)
+   , pickBroadest =     False   -- choose widest display (multi-monitor)
+   , persistent =       True    -- enable/disable hiding (True = disabled)
+
+   , commands = 
+
+        [-- buienradar
+         Run Com "/home/raphael/.local/bin/rain_forecast" [] "buienradar" 18000
+
+         -- volume
+         , Run Com "/home/raphael/.local/bin/sb_volume" 
+         [ "--high", "darkred"
+         ] "volume" 5
+        
+         -- battery
+         , Run Com "/home/raphael/.local/bin/sb_battery" 
+         [ "--high", "darkred"
+         ] "sb_battery" 300
+
+          -- disk space
+         , Run Com "/home/raphael/.local/bin/sb_disk" 
+         [ "--high", "darkred"
+         ] "sb_disk" 600
+
+
+        -- weather monitor
+        , Run Weather "RJTT" [ "--template", "<skyCondition> | <fc=#4682B4><tempC></fc>°C |  <fc=#4682B4><rh></fc>%"
+                             ] 36000
+
+        -- network activity monitor (dynamic interface resolution)
+        , Run DynNetwork     [ "--template" , " <tx>kB/s  <rx>kB/s"
+                             , "--Low"      , "1000"       -- units: B/s
+                             , "--High"     , "5000"       -- units: B/s
+                             , "--low"      , "darkgreen"
+                             , "--normal"   , "darkorange"
+                             , "--high"     , "darkred"
+                             ] 10
+
+        -- cpu activity monitor
+        , Run MultiCpu       [ "--template" , " <total>%"
+                             , "--Low"      , "30"         -- units: %
+                             , "--High"     , "85"         -- units: %
+                             , "--low"      , "darkgreen"
+                             , "--normal"   , "darkorange"
+                             , "--high"     , "darkred"
+                             ] 10
+
+        -- memory usage monitor
+        , Run Memory         [ "--template" ," <usedratio>%"
+                             , "--Low"      , "20"        -- units: %
+                             , "--High"     , "90"        -- units: %
+                             , "--low"      , "darkgreen"
+                             , "--normal"   , "darkorange"
+                             , "--high"     , "darkred"
+                             ] 10
+
+        -- battery monitor
+        , Run Battery        [ "--template" , "Batt: <acstatus>"
+                             , "--Low"      , "30"        -- units: %
+                             , "--High"     , "80"        -- units: %
+                             , "--low"      , "darkred"
+                             , "--normal"   , "darkorange"
+                             , "--high"     , "darkgreen"
+
+                             , "--" -- battery specific options
+                                       -- discharging status
+                                       , "-o"	, "<left>% (<timeleft>)"
+                                       -- AC "on" status
+                                       , "-O"	, "<fc=#dAA520>Charging</fc>"
+                                       -- charged status
+                                       , "-i"	, "<fc=#006000>Charged</fc>"
+                             ] 300
+
+        -- time and date indicator 
+        --   (%T = h:m:s time, %a = day of week, %F = d-m-y date)
+        , Run Date           "<fc=#ebdbb2>%H:%M (%a) %d-%m-%Y</fc>" "date" 100
+
+        -- keyboard layout indicator
+        , Run Kbd            [ ("us(dvorak)" , "<fc=#00008B>DV</fc>")
+                             , ("us"         , "<fc=#8B0000>US</fc>")
+                             ]
+        , Run UnsafeStdinReader
+        ]
+   }
