@@ -150,18 +150,7 @@ require("lspconfig").ghcide.setup({
 	capabilities = capabilities,
 	cmd = { "haskell-language-server-9.2.5", "--lsp" },
 	filetypes = { "haskell", "lhaskell" },
-	root_dir = function(fname)
-		local Path = require("plenary.path")
-
-		local absolute_cwd = Path:new(vim.loop.cwd()):absolute()
-		local absolute_fname = Path:new(fname):absolute()
-
-		if string.find(absolute_cwd, "/cmd/", 1, true) and string.find(absolute_fname, absolute_cwd, 1, true) then
-			return absolute_cwd
-		end
-
-		return lspconfig_util.path.dirname(fname)
-	end,
+	root_dir = nvim_lsp.util.root_pattern("stack.yaml", ".git"),
 })
 
 require("lspconfig").sumneko_lua.setup({
