@@ -1,0 +1,5 @@
+#!/bin/sh
+
+xmonad --restart
+feh --no-fehbg --bg-scale  ~/Pictures/wallpaper.jpeg
+~/.config/polybar/launch.sh
