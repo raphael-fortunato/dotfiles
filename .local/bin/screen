@@ -1,6 +1,4 @@
 #!/bin/sh
-EXTERNAL_OUTPUT=$(xrandr |grep -i " connected"|grep "HDMI"|awk '{print $1}')
-INTERNAL_OUTPUT=$(xrandr |grep -i " connected"|grep "DP"|awk '{print $1}')
 NR_SCREENS_CONNECTED=$(xrandr | grep " connected " | awk '{ print$1 }' |wc -l)
 
 if [ $NR_SCREENS_CONNECTED -lt 2 ]
@@ -9,17 +7,17 @@ then
 else
     choices="Laptop\nExternal\nJoin Display\nDuplicate\nOffice"
 
-    chosen=$(echo "$choices" | dmenu -i)
+    chosen=$(echo -e "$choices" | dmenu -i )
 
     case "$chosen" in
         Laptop) ~/.screenlayout/laptop.sh;;
         External) ~/.screenlayout/external.sh;;
         "Join Display")
-            side="External Right\nExternal Left"
-            chosen_side=$(echo "$side"| dmenu -i)
+            side="Right\nLeft"
+            chosen_side=$(echo -e "$side"| dmenu -i -p "Place External to the: ")
             case "$chosen_side" in
-                "External Right") ~/.screenlayout/join_right.sh;;
-                "External Left") ~/.screenlayout/join_left.sh;;
+                "Right") ~/.screenlayout/join_right.sh;;
+                "Left") ~/.screenlayout/join_left.sh;;
             esac;;
         Duplicate) ~/.screenlayout/external.sh;;
         Office) ~/.screenlayout/office.sh;;
