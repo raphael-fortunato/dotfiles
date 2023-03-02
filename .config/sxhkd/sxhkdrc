@@ -1,0 +1,45 @@
+  Basic binds
+super + d
+        rofi -matching fuzzy -show drun
+super + x
+        slock
+super + p
+        screen
+super + u
+        unmount
+super + s
+        switch_sinks
+super + a
+        change_layout
+
+#Audio Brightness etc
+XF86Audio{Raise,Lower}Volume
+    set_vol {+5%,-5%} && pkill -RTMIN+2 dwmblocks
+XF86AudioMute
+    set_vol mute && pkill -RTMIN+2 dwmblocks
+XF86MonBrightness{Up,Down}
+    xbacklight -{inc 10,dec 10}
+" XF86Screensaver
+"     xbacklgiht -set 0
+XF86Audio{Play, Next, Prev}
+    audio_control {play-pause, next, previous}
+ctrl + {space, Left, Right}
+    audio_control {play-pause, previous, next}
+ctrl + {Up, Down}
+    set_vol {+5%, -5%}
+
+# Applications
+super + Return
+    $TERMINAL
+super + shift + w
+    $BROWSER
+super + shift + p
+    passmenu -i
+Print 
+    maim -s | xclip -sel clipboard -t image/png
+Print + shift
+   maim -s ~/Downloads/$(date +%s).png
+super + shift + d
+   pause_notification
+super + shift + n
+   mons -n left && restart_xmonad

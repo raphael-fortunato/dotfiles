@@ -3,23 +3,35 @@ NR_SCREENS_CONNECTED=$(xrandr | grep " connected " | awk '{ print$1 }' |wc -l)
 
 if [ $NR_SCREENS_CONNECTED -lt 2 ]
 then 
-    ~/.screenlayout/laptop.sh
+    mons --primary eDP-1
+    mons -o
 else
     choices="Laptop\nExternal\nJoin Display\nDuplicate\nOffice"
 
     chosen=$(echo -e "$choices" | dmenu -i )
 
     case "$chosen" in
-        Laptop) ~/.screenlayout/laptop.sh;;
-        External) ~/.screenlayout/external.sh;;
+        Laptop) 
+            mons --primary eDP-1
+            mons -o
+            ;;
+        External)
+            mons --primary HDMI-1
+            mons -o
+            ;;
         "Join Display")
             side="Right\nLeft"
             chosen_side=$(echo -e "$side"| dmenu -i -p "Place External to the: ")
             case "$chosen_side" in
-                "Right") ~/.screenlayout/join_right.sh;;
-                "Left") ~/.screenlayout/join_left.sh;;
+                "Right")
+                    mons --primary eDP-1
+                    mons -e right
+                    ;;
+                "Left")
+                    mons --primary eDP-1
+                    mons -e left;;
             esac;;
-        Duplicate) ~/.screenlayout/external.sh;;
+        Duplicate) mons -d;;
         Office) ~/.screenlayout/office.sh;;
 
     esac

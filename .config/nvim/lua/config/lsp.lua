@@ -78,7 +78,7 @@ local on_attach = function(client, bufnr)
 	vim.keymap.set("i", "gk", vim.lsp.buf.signature_help, opts)
 	vim.keymap.set("n", "<leader>dd", vim.diagnostic.disable)
 	vim.keymap.set("n", "<leader>de", vim.diagnostic.enable)
-	vim.keymap.set("n", "gs", ":ClangSwitchSourceHeader<CR>")
+	vim.keymap.set("n", "gs", ":ClangdSwitchSourceHeader<CR>")
 
 	vim.api.nvim_create_autocmd("ModeChanged", {
 		pattern = { "n:i", "v:s" },
