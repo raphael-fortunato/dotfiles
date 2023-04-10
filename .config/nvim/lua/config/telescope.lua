@@ -1,5 +1,5 @@
 vim.keymap.set("n", "<leader>fp", require("telescope.builtin").find_files)
-vim.keymap.set("n", "<leader>fs", require("telescope.builtin").live_grep)
+vim.keymap.set("n", "<leader>fs", require("config.custom_telescope.multi_rg"))
 vim.keymap.set("n", "<leader>fb", require("telescope.builtin").buffers)
 vim.keymap.set("n", "<leader>fh", require("telescope.builtin").help_tags)
 vim.keymap.set("n", "<leader>gw", require("telescope").extensions.git_worktree.git_worktrees)

@@ -1,8 +1,9 @@
-vim.fn.sign_define("passed", { text = "✓", texthl = "TestPassed" })
+vim.fn.sign_define("passed", { text = "✓", texthl = "testpassed" })
 local ns = vim.api.nvim_create_namespace("live-tests")
-local buf = vim.api.nvim_create_buf(false, true)
+local diagnostic_buf = vim.api.nvim_create_buf(false, true)
+local comp_buf = vim.api.nvim_create_buf(false, true)
 
-local print_scenario_header = function(key)
+local print_scenario_header = function(buf, key)
 	vim.api.nvim_buf_set_lines(buf, -1, -1, false, { "" })
 	vim.api.nvim_buf_set_lines(buf, -1, -1, false, { "------------------------" })
 	vim.api.nvim_buf_set_lines(buf, -1, -1, false, { key })
@@ -63,11 +64,17 @@ local add_scenario_result = function(state_obj, entry)
 end
 
 local test_runner = function(bufnr, file_path)
+	print("Running Behave Tests!")
 	vim.api.nvim_buf_clear_namespace(bufnr, ns, 0, -1)
 	vim.fn.sign_unplace("behave_passed")
 	local append_data = function(_, data)
 		if data then
-			vim.api.nvim_buf_set_lines(buf, 0, -1, false, data)
+			vim.api.nvim_buf_set_lines(diagnostic_buf, -1, -1, false, data)
+		end
+	end
+	local stream_data = function(_, data)
+		if data then
+			vim.api.nvim_buf_set_lines(comp_buf, -1, -1, false, data)
 		end
 	end
 
@@ -76,6 +83,27 @@ local test_runner = function(bufnr, file_path)
 		feature = {},
 		tests = {},
 	}
+	local node_argument = vim.split(vim.fn.expand("%"), "/")[2] .. ":" .. "main"
+	if string.match(vim.fn.expand("%"), "component") then
+		vim.cmd.new()
+		local win = vim.api.nvim_get_current_win()
+		win = vim.api.nvim_win_set_buf(win, comp_buf)
+		print_scenario_header(comp_buf, file_path)
+		vim.fn.jobstart({
+			"python",
+			"/home/raphael/work/simplicity/test/mocks/mocks/module_patch/module_patch.py",
+			node_argument,
+			"-s",
+			"250",
+			"--stoppable",
+			"--log",
+			"INFO",
+		}, {
+			stdout_buffered = true,
+			on_stderr = stream_data,
+			on_stdout = stream_data,
+		})
+	end
 
 	vim.fn.jobstart({ "behave", "-f", "json", file_path }, {
 		stdout_buffered = true,
@@ -101,7 +129,7 @@ local test_runner = function(bufnr, file_path)
 			end
 		end,
 		on_exit = function()
-			vim.api.nvim_buf_set_lines(buf, -1, -1, false, { "Behave Test Output" })
+			vim.api.nvim_buf_set_lines(diagnostic_buf, -1, -1, false, { "Behave Test Output" })
 			local failed = {}
 			if state.feature.status == "passed" then
 				print("Test passed!")
@@ -142,7 +170,7 @@ local test_runner = function(bufnr, file_path)
 						})
 					else
 						-- Set Scenario
-						print_scenario_header(key)
+						print_scenario_header(diagnostic_buf, key)
 						table.insert(failed, {
 							bufnr = bufnr,
 							lnum = test.line,
@@ -155,7 +183,7 @@ local test_runner = function(bufnr, file_path)
 						-- Set error line if error exist
 						if test.steps.error_line ~= nil and test.steps.error_message ~= nil then
 							for _, line in ipairs(test.steps.error_data) do
-								vim.api.nvim_buf_set_lines(buf, -1, -1, false, { line })
+								vim.api.nvim_buf_set_lines(diagnostic_buf, -1, -1, false, { line })
 							end
 							table.insert(failed, {
 								bufnr = bufnr,
@@ -174,7 +202,6 @@ local test_runner = function(bufnr, file_path)
 			vim.diagnostic.set(ns, bufnr, failed, {})
 		end,
 	})
-	print("Running Behave Unit Tests!")
 end
 
 local attach_to_buffer = function(run_pattern, bufnr, file_path)
@@ -195,16 +222,20 @@ vim.api.nvim_create_user_command("AttachRunner", function()
 	if test_case ~= "" then
 		file_path = file_path .. ":" .. test_case
 	end
+	print("File path = " .. file_path)
 
 	local bufnr = tonumber(vim.fn.input("Bufnr: "))
 	if bufnr ~= "" then
 		bufnr = vim.api.nvim_get_current_buf()
+		print("current bufnr = " .. bufnr)
 	end
 
 	local pattern = vim.split(vim.fn.input("Pattern: "), " ")
-	if pattern ~= "" then
+	if pattern == "" then
 		pattern = "*." .. vim.fn.expand("%:e")
 	end
+	print("current pattern = " .. vim.inspect(pattern))
+
 	attach_to_buffer(pattern, bufnr, file_path)
 end, {})
 
@@ -223,5 +254,5 @@ end, {})
 vim.api.nvim_create_user_command("TestDiagnostic", function()
 	vim.cmd.new()
 	local win = vim.api.nvim_get_current_win()
-	win = vim.api.nvim_win_set_buf(win, buf)
+	win = vim.api.nvim_win_set_buf(win, diagnostic_buf)
 end, {})

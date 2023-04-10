@@ -42,19 +42,19 @@ cmp.setup({
 		-- { name = "gh_issues" },
 
 		-- Youtube: Could enable this only for lua, but nvim_lua handles that already.
-		{ name = "nvim_lsp" },
-		{ name = "cmp_tabnine" },
-		{ name = "buffer", keyword_length = 3 },
 		{ name = "path" },
-		{ name = "nvim_lua" },
+		{ name = "nvim_lsp" },
 		{ name = "luasnip" },
+		{ name = "buffer", keyword_length = 3 },
+		{ name = "nvim_lua" },
 		{ name = "zsh" },
 		{ name = "spell" },
 	},
 	-- Set configuration for specific filetype.
 	cmp.setup.filetype("cucumber", {
 		sources = cmp.config.sources({
-			{ name = "behave" },
+			{ name = "nvim_lsp" },
+			-- { name = "behave" },
 		}, { name = "buffer", keyword_length = 3 }),
 	}),
 
@@ -83,7 +83,6 @@ cmp.setup({
 				buffer = "[BUF]",
 				path = "[PATH]",
 				nvim_lua = "[LUA]",
-				cmp_tabnine = "[TNINE]",
 				spell = "[SPELL]",
 			}
 

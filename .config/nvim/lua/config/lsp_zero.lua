@@ -87,7 +87,6 @@ lsp.setup_nvim_cmp({
 	mapping = cmp_mappings,
 	sources = {
 		{ name = "nvim_lsp" },
-		{ name = "cmp_tabnine" },
 		{ name = "luasnip" },
 		{ name = "buffer", keyword_lenoth = 3 },
 		{ name = "path" },

@@ -12,7 +12,7 @@ nls.setup({
 		nls.builtins.diagnostics.markdownlint,
 		nls.builtins.diagnostics.luacheck,
 		nls.builtins.formatting.prettierd.with({
-			filetypes = { "markdown", "json", "yaml", "css", "scss", "less", "html" }, -- only runs `deno fmt` for markdown
+			filetypes = { "markdown", "json", "css", "scss", "less", "html" }, -- only runs `deno fmt` for markdown
 		}),
 		-- nls.builtins.diagnostics.selene.with({
 		-- 	condition = function(utils)
@@ -27,7 +27,9 @@ nls.setup({
 		-- 		diagnostic.code = "no-value-for-parameter"
 		-- 	end,
 		-- }),
-		nls.builtins.diagnostics.pylint,
+		nls.builtins.diagnostics.mypy.with({
+			extra_args = { "--ignore-missing-imports" },
+		}),
 		nls.builtins.diagnostics.flake8.with({
 			extra_args = function(params)
 				-- params.root is set to the first parent dir with with either .git or
@@ -44,7 +46,7 @@ nls.setup({
 						"E241", -- multiple spaces after ':'
 						"E231", -- missing whitespace after ':'
 						"E203", -- whitespace before ':'
-						"E741", -- ambiguous variable name
+						-- "E741", -- ambiguous variable name
 						"E226", -- missing whitespace around arithmetic operator
 						"E305",
 						"E302", -- expected 2 blank lines after class

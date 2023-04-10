@@ -8,6 +8,7 @@ return require("packer").startup(function(use)
 	--Treesitter
 	use("nvim-treesitter/nvim-treesitter", { run = ":TSUpdate" })
 	use("nvim-treesitter/playground")
+	use({ "nvim-treesitter/nvim-treesitter-context", requires = "nvim-treesitter/nvim-treesitter" })
 
 	-- Telescope
 	use({ "nvim-telescope/telescope.nvim", tag = "0.1.0", requires = { { "nvim-lua/plenary.nvim" } } })
@@ -37,15 +38,13 @@ return require("packer").startup(function(use)
 			{ "rafamadriz/friendly-snippets" },
 		},
 	})
+	use({ "lvimuser/lsp-inlayhints.nvim" })
+	use({ "lithammer/nvim-pylance" })
 	use({
 		"j-hui/fidget.nvim",
 		config = function()
 			require("fidget").setup({})
 		end,
-	})
-	use({
-		"SmiteshP/nvim-navic",
-		requires = "neovim/nvim-lspconfig",
 	})
 	use("jose-elias-alvarez/null-ls.nvim")
 	use({
@@ -80,6 +79,7 @@ return require("packer").startup(function(use)
 	use({ "nvim-lualine/lualine.nvim", requires = { { "kyazdani42/nvim-web-devicons" } } })
 	-- colorscheme
 	use("luisiacc/gruvbox-baby", { run = "main" })
+	use("rebelot/kanagawa.nvim")
 
 	-- lua tree
 	use({ "kyazdani42/nvim-tree.lua", requires = { { "kyazdani42/nvim-web-devicons" } } })
@@ -110,6 +110,7 @@ return require("packer").startup(function(use)
 	use({ "/home/raphael/Documents/plugins/neotest-python/", requires = {
 		"nvim-neotest/neotest",
 	} })
+	use({ "alfaix/neotest-gtest" })
 	-- Tmux integration
 	use({
 		"aserowy/tmux.nvim",

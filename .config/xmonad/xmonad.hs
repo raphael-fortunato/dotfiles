@@ -173,7 +173,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
       -- mod-shift-{w,e,r}, Move client to screen 1, 2, or 3
       --
       [ ((m .|. modm, key), screenWorkspace sc >>= flip whenJust (windows . f))
-        | (key, sc) <- zip [xK_period, xK_comma, xK_slash] [0 ..],
+        | (key, sc) <- zip [xK_comma, xK_period, xK_slash] [0 ..],
           (f, m) <- [(W.view, 0), (W.shift, shiftMask)]
       ]
       ++ [ ((modm .|. shiftMask, xK_f), namedScratchpadAction myScratchPads "filemanager"),

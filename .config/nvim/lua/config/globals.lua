@@ -34,7 +34,9 @@ vim.opt.smartcase = true
 vim.opt.autowriteall = true
 vim.opt.termguicolors = true
 
+vim.opt.foldenable = false
+
 vim.g.completeopt = { "menuone", "noinsert", "noselect" }
-vim.g.cpp_pattern = "*{cpp,c,h,hpp,idl,CPP}"
+vim.g.cpp_pattern = "*{cpp,c,h,hpp,CPP}"
 vim.g.python_host_program = vim.fn.expand("~/nvim/bin/python")
 vim.g.python3_host_prog = vim.fn.expand("~/nvim/bin/python")

@@ -22,15 +22,15 @@ vim.api.nvim_create_autocmd(
 )
 vim.api.nvim_create_autocmd("BufWritePre", { pattern = { "*.py, *.pyi" }, command = "call Black()" })
 
-vim.api.nvim_create_autocmd(
-	"BufWritePre",
-	{ pattern = { "*.c, *.cc", ".cpp", ".h", ".hpp", ".idl" }, command = "ClangFormat" }
-)
+vim.api.nvim_create_autocmd("BufWritePre", {
+	pattern = { "*.c, *.cc", "*.cpp", "*.h", "*.hpp" },
+	command = "ClangFormat",
+})
 
 vim.api.nvim_create_autocmd("BufWritePre", { command = "lua vim.lsp.buf.format()" })
 
 vim.api.nvim_create_autocmd("FileType", {
-	pattern = { "*.c, *.cc", ".cpp", ".h", ".hpp", ".idl" },
+	pattern = { "*.c, *.cc", ".cpp", ".h", ".hpp" },
 	command = "set makeprg=make -C build EXTRA_CFLAGS=-fcolor-diagnostics",
 })
 -- vim.api.nvim_create_autocmd("FileType", {

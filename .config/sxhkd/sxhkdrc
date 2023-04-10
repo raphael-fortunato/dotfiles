@@ -1,6 +1,6 @@
   Basic binds
 super + d
-        rofi -matching fuzzy -show drun
+         rofi -matching fuzzy -modi combi -show combi -combi-modi run,drun
 super + x
         slock
 super + p
@@ -30,16 +30,18 @@ ctrl + {Up, Down}
 
 # Applications
 super + Return
-    $TERMINAL
+    alacritty
 super + shift + w
     $BROWSER
 super + shift + p
     passmenu -i
-Print 
+Print
     maim -s | xclip -sel clipboard -t image/png
 Print + shift
-   maim -s ~/Downloads/$(date +%s).png
+    maim -s ~/Downloads/$(date +%s).png
 super + shift + d
    pause_notification
+super + shift + r
+    /home/raphael/.local/bin/restart_xmonad
 super + shift + n
-   mons -n left && restart_xmonad
+    mons -n left && restart_xmonad

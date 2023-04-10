@@ -6,7 +6,7 @@ require("mason-lspconfig").setup({
 		"flake8",
 		"isort",
 		"clangd",
-		"sumneko_lua",
+		"lua_ls",
 		"luacheck",
 		"rust_analyzer",
 		"hls",
@@ -18,8 +18,9 @@ require("mason-lspconfig").setup({
 })
 
 local nvim_lsp = require("lspconfig")
-local lspconfig_util = require("lspconfig.util")
+local nvim_lsp_config = require("lspconfig.configs")
 local capabilities = require("cmp_nvim_lsp").default_capabilities(vim.lsp.protocol.make_client_capabilities())
+require("lsp-inlayhints").setup()
 
 capabilities.textDocument.completion.completionItem.snippetSupport = true
 
@@ -62,6 +63,7 @@ vim.diagnostic.config({
 
 local on_attach = function(client, bufnr)
 	local opts = { buffer = bufnr, remap = false }
+	require("lsp-inlayhints").on_attach(client, bufnr)
 
 	vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
 	vim.keymap.set("n", "gD", vim.lsp.buf.declaration, opts)
@@ -95,39 +97,66 @@ local on_attach = function(client, bufnr)
 			vim.diagnostic.enable(0)
 		end,
 	})
-	require("nvim-navic").attach(client, bufnr)
 end
 
-nvim_lsp.pyright.setup({
-	on_attach = on_attach,
-	settings = {
-		python = {
-			analysis = {
-				autoSearchPaths = true,
-				diagnosticMode = "workspace",
-				useLibraryCodeForTypes = true,
-			},
-		},
-		cmd = {
-			"pyright-langserver",
-			"--stdio",
-		},
-		pyright = {
-			configurationSources = { "flake8" },
-			plugins = {
-				pycodestyle = { enabled = false },
-				flake8 = { enabled = true },
-				mypy = {
-					enabled = true,
-					live_mode = true,
-					strict = true,
+-- nvim_lsp.pyright.setup({
+-- 	on_attach = on_attach,
+-- 	settings = {
+-- 		python = {
+-- 			analysis = {
+-- 				autoSearchPaths = true,
+-- 				diagnosticMode = "workspace",
+-- 				useLibraryCodeForTypes = true,
+-- 			},
+-- 		},
+-- 		cmd = {
+-- 			"pyright-langserver",
+-- 			"--stdio",
+-- 		},
+-- 		pyright = {
+-- 			configurationSources = { "flake8" },
+-- 			plugins = {
+-- 				pycodestyle = { enabled = false },
+-- 				flake8 = { enabled = true },
+-- 				mypy = {
+-- 					enabled = true,
+-- 					live_mode = true,
+-- 					strict = true,
+-- 				},
+-- 			},
+-- 		},
+-- 	},
+-- 	capabilities = capabilities,
+-- 	filetypes = { "python" },
+-- 	root_dir = nvim_lsp.util.root_pattern("pyrightconfig.json", ".git"),
+-- })
+local pylance = require("pylance")
+
+pylance.setup()
+nvim_lsp_config.pylance = {
+	default_config = {
+		-- https://github.com/microsoft/pylance-release#settings-and-customization
+		cmd = { "node", vim.fn.expand("~/.local/share/nvim/lsp_servers/pylance/dist/server.bundle.js"), "--stdio" },
+		settings = {
+			python = {
+				analysis = {
+					indexing = true,
+					typeCheckingMode = "basic",
+					inlayHints = {
+						variableTypes = true,
+						functionReturnTypes = true,
+						pytestParameters = true,
+					},
 				},
 			},
 		},
+		root_dir = nvim_lsp.util.root_pattern("pyrightconfig.json", ".git"),
 	},
+}
+nvim_lsp.pylance.setup({
+	on_attach = on_attach,
 	capabilities = capabilities,
 	filetypes = { "python" },
-	root_dir = nvim_lsp.util.root_pattern("pyrightconfig.json", ".git"),
 })
 
 nvim_lsp.clangd.setup({
@@ -136,7 +165,7 @@ nvim_lsp.clangd.setup({
 	filetypes = { "c", "cpp", "objc", "objcpp", "idl" },
 	root_dir = nvim_lsp.util.root_pattern(".git"),
 	cmd = {
-		"clangd",
+		"clangd-16",
 		"--background-index",
 		"--clang-tidy",
 		"--header-insertion=iwyu",
@@ -153,7 +182,7 @@ require("lspconfig").ghcide.setup({
 	root_dir = nvim_lsp.util.root_pattern("stack.yaml", ".git"),
 })
 
-require("lspconfig").sumneko_lua.setup({
+require("lspconfig").lua_ls.setup({
 	on_attach = on_attach,
 	commands = {
 		Format = {
@@ -171,17 +200,20 @@ require("lspconfig").sumneko_lua.setup({
 	},
 })
 
--- nvim_lsp.cucumber_language_server.setup({
--- 	root_dir = nvim_lsp.util.root_pattern("environment.py"),
--- 	filetypes = { "cucumber" },
--- 	cmd = { vim.fn.expand("~/Downloads/language-server/bin/cucumber-language-server.cjs"), "--stdio" },
--- 	settings = {
--- 		cucumber = {
--- 			features = { "**/*.feature" },
--- 			glue = {
--- 				vim.fn.expand("~/work/simplicity/test/mocks/mocks/steps/*.py"),
--- 				"**/steps/*.py",
--- 			},
--- 		},
--- 	},
--- })
+nvim_lsp.cucumber_language_server.setup({
+	on_attach = on_attach,
+	capabilities = capabilities,
+	root_dir = nvim_lsp.util.root_pattern("environment.py"),
+	filetypes = { "cucumber" },
+	cmd = { vim.fn.expand("~/builds/language-server/bin/cucumber-language-server.cjs"), "--stdio" },
+	settings = {
+		cucumber = {
+			features = { "features/*.feature" },
+			on_attach = on_attach,
+			glue = {
+				vim.fn.expand("~/work/simplicity/test/mocks/mocks/steps/*.py"),
+				"steps/*.py",
+			},
+		},
+	},
+})

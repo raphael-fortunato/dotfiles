@@ -43,14 +43,15 @@ require("nvim-tree").setup({
 		ignore = true,
 		timeout = 500,
 	},
-      view = {
-    adaptive_size = true,
-    mappings = {
-      list = {
-        { key = "u", action = "dir_up" },
-      },
-    },
-  },
+	view = {
+		adaptive_size = false,
+		width = 30,
+		mappings = {
+			list = {
+				{ key = "u", action = "dir_up" },
+			},
+		},
+	},
 	trash = {
 		cmd = "trash",
 		require_confirm = true,
@@ -61,7 +62,7 @@ require("nvim-tree").setup({
 		},
 		open_file = {
 			quit_on_open = false,
+			resize_window = true,
 		},
 	},
 })
-
