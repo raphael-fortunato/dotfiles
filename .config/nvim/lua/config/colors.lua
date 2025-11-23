@@ -1,0 +1,11 @@
+-- vim.g.gruvbox_baby_transparent_mode = 1
+-- vim.g.gruvbox_baby_telescope_theme = 1
+-- vim.g.gruvbox_baby_highlights = {
+--     Normal = { fg = "#123123", bg = "NONE", style = "underline" },
+--     Comment = { fg = "#e7d7ad", bg = "None" },
+-- }
+-- -- vim.g.gruvbox_baby_comment_style = "#e7d7ad"
+-- vim.g.gruvbox_baby_function_style = "NONE"
+-- vim.g.gruvbox_baby_keyword_style = "italic"
+-- vim.g.gruvbox_baby_highlights = { Comment = { fg = "#e7d7ad" } }
+-- vim.g.gruvbox_baby_highlights = { ["@comment"] = { fg = "#504945" } }

@@ -1,3 +1,4 @@
+vim.g.mapleader = " "
 vim.opt.nu = true
 vim.opt.relativenumber = true
 
@@ -36,7 +37,16 @@ vim.opt.termguicolors = true
 
 vim.opt.foldenable = false
 
+vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+vim.opt.foldtext = "v:lua.vim.treesitter.foldtext()"
+
 vim.g.completeopt = { "menuone", "noinsert", "noselect" }
 vim.g.cpp_pattern = "*{cpp,c,h,hpp,CPP}"
 vim.g.python_host_program = vim.fn.expand("~/nvim/bin/python")
 vim.g.python3_host_prog = vim.fn.expand("~/nvim/bin/python")
+
+vim.opt.foldmethod = "expr"
+vim.opt.foldexpr = "nvim_treesitter#foldexpr()"
+vim.opt.list = true
+
+vim.filetype.add("CPP", "H")

@@ -1,7 +1,8 @@
-vim.fn.sign_define("passed", { text = "✓", texthl = "testpassed" })
+vim.fn.sign_define("passed", { text = "✓", texthl = "TestPassed" })
 local ns = vim.api.nvim_create_namespace("live-tests")
 local diagnostic_buf = vim.api.nvim_create_buf(false, true)
 local comp_buf = vim.api.nvim_create_buf(false, true)
+local current_job = 0
 
 local print_scenario_header = function(buf, key)
 	vim.api.nvim_buf_set_lines(buf, -1, -1, false, { "" })
@@ -83,29 +84,29 @@ local test_runner = function(bufnr, file_path)
 		feature = {},
 		tests = {},
 	}
-	local node_argument = vim.split(vim.fn.expand("%"), "/")[2] .. ":" .. "main"
-	if string.match(vim.fn.expand("%"), "component") then
-		vim.cmd.new()
-		local win = vim.api.nvim_get_current_win()
-		win = vim.api.nvim_win_set_buf(win, comp_buf)
-		print_scenario_header(comp_buf, file_path)
-		vim.fn.jobstart({
-			"python",
-			"/home/raphael/work/simplicity/test/mocks/mocks/module_patch/module_patch.py",
-			node_argument,
-			"-s",
-			"250",
-			"--stoppable",
-			"--log",
-			"INFO",
-		}, {
-			stdout_buffered = true,
-			on_stderr = stream_data,
-			on_stdout = stream_data,
-		})
-	end
+	-- local node_argument = vim.split(vim.fn.expand("%"), "/")[2] .. ":" .. "main"
+	-- if string.match(vim.fn.expand("%"), "component") then
+	-- 	vim.cmd.new()
+	-- 	local win = vim.api.nvim_get_current_win()
+	-- 	win = vim.api.nvim_win_set_buf(win, comp_buf)
+	-- 	print_scenario_header(comp_buf, file_path)
+	-- 	vim.fn.jobstart({
+	-- 		"python",
+	-- 		"/home/raphael/work/simplicity/test/mocks/mocks/module_patch/module_patch.py",
+	-- 		node_argument,
+	-- 		"-s",
+	-- 		"250",
+	-- 		"--stoppable",
+	-- 		"--log",
+	-- 		"INFO",
+	-- 	}, {
+	-- 		stdout_buffered = true,
+	-- 		on_stderr = stream_data,
+	-- 		on_stdout = stream_data,
+	-- 	})
+	-- end
 
-	vim.fn.jobstart({ "behave", "-f", "json", file_path }, {
+	current_job = vim.fn.jobstart({ "behave", "-f", "json", file_path }, {
 		stdout_buffered = true,
 		on_stderr = append_data,
 		on_stdout = function(_, data)
@@ -255,4 +256,10 @@ vim.api.nvim_create_user_command("TestDiagnostic", function()
 	vim.cmd.new()
 	local win = vim.api.nvim_get_current_win()
 	win = vim.api.nvim_win_set_buf(win, diagnostic_buf)
+end, {})
+
+vim.api.nvim_create_user_command("StopTest", function()
+	if current_job ~= 0 then
+		vim.fn.jobstop(current_job)
+	end
 end, {})

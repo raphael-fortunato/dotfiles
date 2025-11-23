@@ -20,14 +20,14 @@ vim.api.nvim_create_autocmd(
 	"BufWritePre",
 	{ pattern = { "*.lua" }, command = "lua require('stylua-nvim').format_file()" }
 )
-vim.api.nvim_create_autocmd("BufWritePre", { pattern = { "*.py, *.pyi" }, command = "call Black()" })
+-- vim.api.nvim_create_autocmd("BufWritePre", { pattern = { "*.py, *.pyi" }, command = "call Black()" })
 
 vim.api.nvim_create_autocmd("BufWritePre", {
 	pattern = { "*.c, *.cc", "*.cpp", "*.h", "*.hpp" },
 	command = "ClangFormat",
 })
 
-vim.api.nvim_create_autocmd("BufWritePre", { command = "lua vim.lsp.buf.format()" })
+-- vim.api.nvim_create_autocmd("BufWritePre", { command = "lua vim.lsp.buf.format()" })
 
 vim.api.nvim_create_autocmd("FileType", {
 	pattern = { "*.c, *.cc", ".cpp", ".h", ".hpp" },
