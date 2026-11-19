@@ -1,99 +1,93 @@
-# install starship
-if [ ! $(command -v starship) ]; then
-    echo "Installing starship"
-    sh -c "$(curl -fsSL https://starship.rs/install.sh)"
-fi
-eval "$(starship init zsh)"
 
-unsetopt flowcontrol
-unsetopt menu_complete
-setopt appendhistory
-setopt autocd extendedglob histignorealldups
-setopt interactive_comments
-setopt auto_menu
-setopt complete_in_word
-setopt always_to_end
-stty stop undef		# Disable ctrl-s to freeze terminal.
-zle_highlight=('paste:none')
+# Enable keybindings
+bindkey -e
 
-# beeping is annoying
-unsetopt BEEP
-
-
-# completions
-# autoload -Uz compinit -d $XDG_CACHE_HOME/zsh/zcompdump-$ZSH_VERSION
-autoload -U compinit -d $XDG_CACHE_HOME/zsh/zcompdump-$ZSH_VERSION
-zstyle ':completion:*' matcher-list '' 'm:{a-z}={A-Z}' '+m:{A-Z}={a-z}' menu select
-zstyle ':completion::complete:*' gain-privileges 1
-zstyle ':completion::complete:lsof:*' menu yes select
-zmodload zsh/complist
-# compinit
-_comp_options+=(globdots)		# Include hidden files.
-
-autoload -U up-line-or-beginning-search
-autoload -U down-line-or-beginning-search
-zle -N up-line-or-beginning-search
-zle -N down-line-or-beginning-search
-
-# Colors
-autoload -Uz colors && colors
-
-HIST_STAMPS="dd/mm/yyyy"
+# History setup
+HISTFILE=$HOME/.config/zsh/.zsh_history
 HISTSIZE=10000
 SAVEHIST=10000
-HISTFILE="$XDG_CACHE_HOME/zsh/history"
+setopt APPEND_HISTORY
+setopt SHARE_HISTORY
 
-source $XDG_CONFIG_HOME/shell/aliasrc
-source $XDG_CONFIG_HOME/shell/shortcutrc
-source $ZDOTDIR/zsh_functions
-source $ZDOTDIR/zsh-completions.plugin.zsh
+# Colors
+autoload -U colors && colors
 
-#source zsh functions
-zsh_add_file "zsh_vim_mode"
-# zsh_add_file "zsh_prompt"
+# Starship Prompt
+eval "$(starship init zsh)"
 
-#Plugins
-zsh_add_plugin "zsh-users/zsh-autosuggestions"
-zsh_add_plugin "zsh-users/zsh-syntax-highlighting"
-zsh_add_plugin "hlissner/zsh-autopair"
-zsh_add_plugin "zsh-fzf"
-
-# Key-bindings
-bindkey -v
-export KEYTIMEOUT=0
-
-bindkey -s '^o' 'lf^M'
-bindkey -s '^s' 'ncdu^M'
-bindkey -s '^e' '$EDITOR "$(find -maxdepth 4 -type f| fzf)"^M'
-bindkey -s '^z' 'zi^M'
-bindkey '^f' autosuggest-accept
-bindkey '^[[P' delete-char
-bindkey "^n" up-line-or-beginning-search # Up
-bindkey "^p" down-line-or-beginning-search # Down
-bindkey '^n' expand-or-complete
-bindkey '^p' reverse-menu-complete
-bindkey '^u' backward-kill-line
-# bindkey -r "^u"
-# bindkey -r "^d"
-
-eval "$(pyenv init --path)"
-eval "$(pyenv virtualenv-init -)"
-eval "$(pyenv init -)"
-
-#install zoxide
-if [ ! $(command -v zoxide) ]; then
-    echo "installing zoxide"
-    curl -sS https://webinstall.dev/zoxide | bash
+# Source FZF integration
+# Based on installation paths found earlier
+# Case-insensitive search for fzf-cd-widget (Ctrl+T and Alt+C)
+export FZF_ALT_C_OPTS="-i"
+if [ -f /usr/share/doc/fzf/examples/key-bindings.zsh ]; then
+  source /usr/share/doc/fzf/examples/key-bindings.zsh
 fi
+if [ -f /usr/share/doc/fzf/examples/completion.zsh ]; then
+  source /usr/share/doc/fzf/examples/completion.zsh
+fi
+
+# Enable FZF keybindings (Ctrl+T, Ctrl+R, Alt+C)
+# These are usually enabled by the scripts above, but just in case
+bindkey '^T' fzf-cd-widget
+bindkey '^R' fzf-history-widget
+
+# Custom widget: fuzzy find directories from ~ and cd into them
+fzf-home-cd-widget() {
+  local dir
+  dir=$(find ~ -type d 2>/dev/null | fzf -i +m) && cd "$dir"
+  zle reset-prompt
+}
+zle -N fzf-home-cd-widget
+bindkey '^G' fzf-home-cd-widget  # Ctrl+G
+
+# Source Autosuggestions
+if [ -f $HOME/.config/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh ]; then
+    source $HOME/.config/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+fi
+
+# Autosuggestions configuration
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=60'
+ZSH_AUTOSUGGEST_MANUAL_REBIND=1
+ZSH_AUTOSUGGEST_USE_ASYNC=1
+ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=200
+bindkey '^f' autosuggest-accept
+
+# Zoxide (smarter cd)
 eval "$(zoxide init zsh)"
 
-#fzf bindings
-# source /usr/share/fzf/key-bindings.zsh
-# source /usr/share/fzf/completion.zsh
-#zsh auto suggest
-zshaddhistory() { whence ${${(z)1}[1]} >| /dev/null || return 1 }
-source ~/.config/shell/shortcutrc
-
-if [[ $TTY == /dev/tty1 ]] && [[ -z $DISPLAY ]]; then
-  exec startx
+# Syntax Highlighting
+ZSH_HIGHLIGHT_MAXLENGTH=200
+# Drop Windows dirs from PATH (slow /mnt/c lookups on every keystroke)
+path=(${path:#/mnt/c/*})
+# Must be sourced at the end
+if [ -f $HOME/.config/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; then
+   source $HOME/.config/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 fi
+
+# Aliases
+alias ll='ls -l'
+alias la='ls -la'
+alias grep='grep --color=auto'
+alias ..='cd ..'
+alias perf='/usr/lib/linux-tools/6.8.0-110-generic/perf'
+alias fix-mtu='sudo ip link set dev eth0 mtu 1350'
+
+export FASTDDS_DEFAULT_PROFILES_FILE=~/projects/tops_dds_modules/external/tops_dds_lib/DEFAULT_FASTDDS_PROFILES.xml
+#export FASTDDS_DEFAULT_PROFILES_FILE=~/projects/dds_tester/DEFAULT_FASTDDS_PROFILES.xml
+
+export PYTHONPATH=/usr/local/lib/python3.12/dist-packages:/usr/local/lib/python3.12/site-packages:/usr/local/lib/python3/dist-packages:/usr/local/lib/python3/site-packages
+export PATH="$HOME/.local/nvim-linux-x86_64/bin:$PATH"
+#export ANDROID_HOME=$HOME/android-sdk
+#export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin
+#export PATH=$PATH:$ANDROID_HOME/platform-tools
+export PATH="$PATH:$HOME/flutter/bin"
+
+# Point WSL2 to the Windows ADB server
+#export WINDOWS_IP=$(ip route show default | awk '{print $3}')
+#export ADB_SERVER_SOCKET=tcp:$WINDOWS_IP:5037
+
+export PATH="$PATH:$HOME/.local/bin"
+
+#export PUB_HOSTED_URL=https://ias-cloud.tno.nl/pub/
+# export PUB_HOSTED_URL=https://ias-cloud.tno.nl/nexus/repository/pub-dev
+

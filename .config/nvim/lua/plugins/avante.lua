@@ -2,11 +2,13 @@ return {
   {
     enabled = true,
     "yetone/avante.nvim",
-    build = "make",
+    -- `make` needs a Rust toolchain; build.sh downloads the prebuilt libs instead.
+    build = "bash build.sh",
     dependencies = {
       "stevearc/dressing.nvim",
       "nvim-lua/plenary.nvim",
       "MunifTanjim/nui.nvim",
+      { "ColinKennedy/mega.cmdparse", dependencies = { "ColinKennedy/mega.logging" } },
       "nvim-tree/nvim-web-devicons", -- or echasnovski/mini.icons
       -- {
       --   "MeanderingProgrammer/render-markdown.nvim",

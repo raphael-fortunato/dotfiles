@@ -1,39 +1,58 @@
--- open vim on closing line
-vim.api.nvim_create_autocmd("BufReadPost", {
-	pattern = { "*" },
+-- Loaded on VeryLazy. LazyVim defaults:
+-- https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/autocmds.lua
+local function augroup(name)
+	return vim.api.nvim_create_augroup("user_" .. name, { clear = true })
+end
+
+-- Use built-in gq (honours textwidth) instead of conform's formatexpr
+vim.api.nvim_create_autocmd("FileType", {
+	group = augroup("markdown_gq"),
+	pattern = "markdown",
 	callback = function()
-		if vim.fn.line("'\"") > 1 and vim.fn.line("'\"") <= vim.fn.line("$") then
-			vim.api.nvim_exec("normal! g'\"", false)
+		vim.opt_local.formatexpr = ""
+		vim.opt_local.textwidth = 80
+	end,
+})
+
+vim.api.nvim_create_autocmd("FileType", {
+	group = augroup("c_makeprg"),
+	pattern = { "c", "cpp" },
+	command = "setlocal makeprg=make\\ -C\\ build\\ EXTRA_CFLAGS=-fcolor-diagnostics",
+})
+
+-- Format on save only for these filetypes (<leader>cf formats the rest on demand)
+local format_on_save = { lua = true, c = true, cpp = true, python = true }
+vim.api.nvim_create_autocmd("FileType", {
+	group = augroup("autoformat_ft"),
+	callback = function(args)
+		if not format_on_save[vim.bo[args.buf].filetype] then
+			vim.b[args.buf].autoformat = false
 		end
 	end,
 })
 
-vim.api.nvim_create_autocmd("TextYankPost", {
-	once = false,
-	callback = function()
-		vim.highlight.on_yank({ higroup = "Visual", timeout = 300, on_visual = true })
+-- Hide diagnostics while typing
+local typing = augroup("diagnostics_while_typing")
+vim.api.nvim_create_autocmd("ModeChanged", {
+	group = typing,
+	pattern = { "n:i", "v:s" },
+	callback = function(args)
+		if vim.diagnostic.is_enabled({ bufnr = args.buf }) then
+			vim.b[args.buf].diag_hidden_while_typing = true
+			vim.diagnostic.enable(false, { bufnr = args.buf })
+		end
+	end,
+})
+-- Only re-enable what was hidden above, so manual toggles (<leader>ud) stick
+vim.api.nvim_create_autocmd("ModeChanged", {
+	group = typing,
+	pattern = "i:n",
+	callback = function(args)
+		if vim.b[args.buf].diag_hidden_while_typing then
+			vim.b[args.buf].diag_hidden_while_typing = nil
+			vim.diagnostic.enable(true, { bufnr = args.buf })
+		end
 	end,
 })
 
-vim.api.nvim_create_autocmd("VimResized", { pattern = { "*" }, command = "wincmd =" })
-vim.api.nvim_create_autocmd(
-	"BufWritePre",
-	{ pattern = { "*.lua" }, command = "lua require('stylua-nvim').format_file()" }
-)
--- vim.api.nvim_create_autocmd("BufWritePre", { pattern = { "*.py, *.pyi" }, command = "call Black()" })
-
-vim.api.nvim_create_autocmd("BufWritePre", {
-	pattern = { "*.c, *.cc", "*.cpp", "*.h", "*.hpp" },
-	command = "ClangFormat",
-})
-
--- vim.api.nvim_create_autocmd("BufWritePre", { command = "lua vim.lsp.buf.format()" })
-
-vim.api.nvim_create_autocmd("FileType", {
-	pattern = { "*.c, *.cc", ".cpp", ".h", ".hpp" },
-	command = "set makeprg=make -C build EXTRA_CFLAGS=-fcolor-diagnostics",
-})
--- vim.api.nvim_create_autocmd("FileType", {
--- 	pattern = { "*.feature" },
--- 	command = "lua vim.keymap.set('n', 'gd', require('GoBehave').goto_definition)",
--- })
+require("modules")
